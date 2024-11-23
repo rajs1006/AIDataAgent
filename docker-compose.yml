@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NEXT_PUBLIC_API_URL=http://localhost:8000
+  #   depends_on:
+  #     - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=AI Data Agent
+      - API_V1_STR=/api/v1
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:8000"]
+      - MONGODB_URL=mongodb://mongodb:27017
+      - MONGODB_DB_NAME=ai_data_agent
+      - SECRET_KEY=bc708dbcccb913f4d068fb526e2a922a444f32c99d7c5732cc15cb7f4365101d
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ALGORITHM=HS256
+      - QDRANT_URL=http://qdrant:6333
+      - DEBUG=True
+      - ENV=development
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - mongodb
+      - qdrant
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  mongodb_data:
+  qdrant_data:
